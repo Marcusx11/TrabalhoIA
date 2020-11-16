@@ -1,10 +1,12 @@
 import constants
 import pygame
+from random import choice
+import os
 
 
 class Bird:
     def __init__(self, x, y):
-        self.IMGS = constants.BIRD_IMGS
+        # self.IMGS = constants.BIRD_IMGS
         self.MAX_ROTATION = 25  # Rotação máxima do pássaro
         self.ROT_VEL = 20  # Velocidade de rotação
         self.ANIMATION_TIME = 5  # O tempo de amostra da animação do pássaro
@@ -22,9 +24,27 @@ class Bird:
         self.height = self.y
         self.img_count = 0  # Qual imagem está mostrando atualmente do vetor
 
+        self.randomize_color()
+
         # Imagem inicial do pássaro:
         self.img = self.IMGS[0]
 
+    # Randomiza a cor do pássaro para aumentar a variedade visual da população
+    def randomize_color(self):
+        colors = ("green", "yellow", "red", "blue", "purple")
+        random_color = choice(colors)
+    
+        BIRD_IMGS = [
+            # Comando abaixo faz as imagens terem o dobro de tamanho
+            pygame.transform.scale2x(pygame.image.load(os.path.join("./imgs", "bird" + random_color + "1.png"))),
+
+            pygame.transform.scale2x(pygame.image.load(os.path.join("./imgs", "bird" + random_color + "2.png"))),
+
+             pygame.transform.scale2x(pygame.image.load(os.path.join("./imgs", "bird" + random_color + "3.png")))
+        ]
+
+        self.IMGS = BIRD_IMGS
+        
     # Método para fazer o pássaro pular
     def jump(self):
         self.vel = -10.5
