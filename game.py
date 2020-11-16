@@ -9,10 +9,13 @@ import neat
 
 # Número de gerações
 GEN = 0
+SCORE = 0 # Score inicial
+BEST_BIRD = Bird(200, 300) # Seleciona um pássaro gerado aleatoriamente como placeholder até que exista o primeiro avanço da população.
 
 
 # Desenha a janela de fundo do jogo com o objeto do pássaro
-def draw_window(window, bird, pipes, base, score, gen):
+
+def draw_window(window, bird, pipes, base, score, gen, best_bird):
     window.blit(constants.BG_IMG, (0, 0))
 
     for pipe in pipes:
@@ -24,6 +27,16 @@ def draw_window(window, bird, pipes, base, score, gen):
     # Geração atual
     gen = constants.STAT_FONT.render("Geração: " + str(gen), 1, (255, 255, 255))
     window.blit(gen, (10, 10))
+
+    best = constants.STAT_FONT.render("Melhor Indivíduo: ", 1, (255, 255, 255))
+    window.blit(best, (10, 40))
+
+    global SCORE 
+
+    best_score = constants.STAT_FONT.render("Score: " + str(SCORE), 1, (255, 255, 255))
+    window.blit(best_score, (10, 140))
+
+    window.blit(best_bird.IMGS[0], (30, 80))
 
     base.draw(window)
 
@@ -47,6 +60,8 @@ def main(genomes, config):
     # Arrays de objetos de pássaro
     birds = list()
 
+    win = pygame.display.set_mode((constants.WIN_WIDTH, constants.WIN_HEIGHT))
+
     # Setando uma rede neural para os genótipos
     for _, g in genomes:
         # Adicionando uma nova rede
@@ -58,8 +73,6 @@ def main(genomes, config):
 
     base = Base(730)  # Fundo da tela do jogo
     pipes = [Pipe(600)]
-
-    win = pygame.display.set_mode((constants.WIN_WIDTH, constants.WIN_HEIGHT))
 
     clock = pygame.time.Clock()
 
@@ -81,11 +94,20 @@ def main(genomes, config):
                 break
 
         pipe_ind = 0
-        if len(birds) > 0:
+
+        print(len(birds))
+        if len(birds) == 1:
+            # Checa se é o maior score até então
+            global SCORE
+            if score >= SCORE:
+                SCORE = score
+                global BEST_BIRD
+                BEST_BIRD = birds[0]
+
+        elif len(birds) > 0:
             # Pegando-se o primeiro pássaro arbitráriamente
             if len(pipes) > 0 and birds[0].x > pipes[0].x + pipes[0].PIPE_TOP.get_width():
                 pipe_ind = 1
-
         else:
             game_run = False
             # Parar esta geração (encerrar o jogo)
@@ -153,7 +175,7 @@ def main(genomes, config):
                 ge.pop(x)
 
         # Mostra os elementos do jogo na tela
-        draw_window(win, birds, pipes, base, score, GEN)
+        draw_window(win, birds, pipes, base, score, GEN, BEST_BIRD)
 
 
 def run(configpath):
